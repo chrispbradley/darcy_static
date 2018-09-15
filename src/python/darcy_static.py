@@ -25,12 +25,13 @@ screen_output_freq = 2 #how many time steps between outputs to screen
     generatedMeshUserNumber,
     meshUserNumber,
     decompositionUserNumber,
+    decomposerUserNumber,
     geometricFieldUserNumber,
     equationsSetFieldUserNumber,
     dependentFieldUserNumber,
     materialFieldUserNumber,
     equationsSetUserNumber,
-    problemUserNumber) = range(1,13)
+    problemUserNumber) = range(1,14)
 
 numberGlobalXElements = 5
 numberGlobalYElements = 5
@@ -45,8 +46,11 @@ iron.Context.WorldRegionGet(worldRegion)
 
 computationEnvironment = iron.ComputationEnvironment()
 iron.Context.ComputationEnvironmentGet(computationEnvironment)
-numberOfComputationalNodes = computationEnvironment.NumberOfWorldNodesGet()
-computationalNodeNumber = computationEnvironment.WorldNodeNumberGet()
+
+worldWorkGroup = iron.WorkGroup()
+computationEnvironment.WorldWorkGroupGet(worldWorkGroup)
+numberOfComputationalNodes = worldWorkGroup.NumberOfGroupNodesGet()
+computationalNodeNumber = worldWorkGroup.GroupNodeNumberGet()
 
 #-----------------------------------------------------------------------------------------------------------
 #COORDINATE SYSTEM
@@ -108,9 +112,16 @@ print("number of elements: " + str(numberOfElements))
 # Create a decomposition for the mesh
 decomposition = iron.Decomposition()
 decomposition.CreateStart(decompositionUserNumber,mesh)
-decomposition.type = iron.DecompositionTypes.CALCULATED
-decomposition.numberOfDomains = numberOfComputationalNodes
 decomposition.CreateFinish()
+
+#-----------------------------------------------------------------------------------------------------------
+#DECOMPOSER
+#-----------------------------------------------------------------------------------------------------------
+
+decomposer = iron.Decomposer()
+decomposer.CreateStart(decomposerUserNumber,worldRegion,worldWorkGroup)
+decompositionIndex = decomposer.DecompositionAdd(decomposition)
+decomposer.CreateFinish()
 
 #-----------------------------------------------------------------------------------------------------------
 #GEOMETRIC FIELD
