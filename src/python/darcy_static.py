@@ -19,33 +19,37 @@ perm_over_vis = 0.8
 initial_conc = 0.0
 screen_output_freq = 2 #how many time steps between outputs to screen
 
-(coordinateSystemUserNumber,
-    regionUserNumber,
-    basisUserNumber,
-    generatedMeshUserNumber,
-    meshUserNumber,
-    decompositionUserNumber,
-    decomposerUserNumber,
-    geometricFieldUserNumber,
-    equationsSetFieldUserNumber,
-    dependentFieldUserNumber,
-    materialFieldUserNumber,
-    equationsSetUserNumber,
-    problemUserNumber) = range(1,14)
+(contextUserNumber,
+ coordinateSystemUserNumber,
+ regionUserNumber,
+ basisUserNumber,
+ generatedMeshUserNumber,
+ meshUserNumber,
+ decompositionUserNumber,
+ decomposerUserNumber,
+ geometricFieldUserNumber,
+ equationsSetFieldUserNumber,
+ dependentFieldUserNumber,
+ materialFieldUserNumber,
+ equationsSetUserNumber,
+ problemUserNumber) = range(1,15)
 
 numberGlobalXElements = 5
 numberGlobalYElements = 5
 numberGlobalZElements = 5
 
+context = iron.Context()
+context.Create(contextUserNumber)
+
 worldRegion = iron.Region()
-iron.Context.WorldRegionGet(worldRegion)
+context.WorldRegionGet(worldRegion)
 
 #-----------------------------------------------------------------------------------------------------------
 # DIAGNOSTICS AND COMPUTATIONAL NODE INFORMATION
 #-----------------------------------------------------------------------------------------------------------
 
 computationEnvironment = iron.ComputationEnvironment()
-iron.Context.ComputationEnvironmentGet(computationEnvironment)
+context.ComputationEnvironmentGet(computationEnvironment)
 
 worldWorkGroup = iron.WorkGroup()
 computationEnvironment.WorldWorkGroupGet(worldWorkGroup)
@@ -58,7 +62,7 @@ computationalNodeNumber = worldWorkGroup.GroupNodeNumberGet()
 
 # Create a RC coordinate system
 coordinateSystem = iron.CoordinateSystem()
-coordinateSystem.CreateStart(coordinateSystemUserNumber,iron.Context)
+coordinateSystem.CreateStart(coordinateSystemUserNumber,context)
 coordinateSystem.dimension = 3
 coordinateSystem.CreateFinish()
 
@@ -79,7 +83,7 @@ region.CreateFinish()
 
 # Create a tri-linear lagrange basis
 basis = iron.Basis()
-basis.CreateStart(basisUserNumber,iron.Context)
+basis.CreateStart(basisUserNumber,context)
 basis.type = iron.BasisTypes.LAGRANGE_HERMITE_TP
 basis.numberOfXi = 3
 basis.interpolationXi = [iron.BasisInterpolationSpecifications.LINEAR_LAGRANGE]*3
@@ -205,7 +209,7 @@ problem = iron.Problem()
 problemSpecification = [iron.ProblemClasses.FLUID_MECHANICS,
         iron.ProblemTypes.DARCY_EQUATION,
         iron.ProblemSubtypes.STANDARD_DARCY]
-problem.CreateStart(problemUserNumber,iron.Context,problemSpecification)
+problem.CreateStart(problemUserNumber,context,problemSpecification)
 problem.CreateFinish()
 
 # Create control loops
@@ -329,4 +333,6 @@ fields.NodesExport("output/StaticDarcy","FORTRAN")
 fields.ElementsExport("output/StaticDarcy","FORTRAN")
 fields.Finalise()
 
-iron.Finalise(iron.Context)
+context.Destroy(context)
+
+Finalise()

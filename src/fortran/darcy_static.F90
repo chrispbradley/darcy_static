@@ -20,19 +20,20 @@ PROGRAM darcy_static
   REAL(CMISSRP), PARAMETER :: WIDTH=1.0_CMISSRP
   REAL(CMISSRP), PARAMETER :: LENGTH=1.0_CMISSRP
 
-  INTEGER(CMISSIntg), PARAMETER :: CoordinateSystemUserNumber=1
-  INTEGER(CMISSIntg), PARAMETER :: RegionUserNumber=2
-  INTEGER(CMISSIntg), PARAMETER :: MeshUserNumber=3
-  INTEGER(CMISSIntg), PARAMETER :: DecompositionUserNumber=4
-  INTEGER(CMISSIntg), PARAMETER :: DecomposerUserNumber=5
-  INTEGER(CMISSIntg), PARAMETER :: GeometricFieldUserNumber=6
-  INTEGER(CMISSIntg), PARAMETER :: EquationsSetFieldUserNumber=7
-  INTEGER(CMISSIntg), PARAMETER :: DependentFieldUserNumberDarcy=8
-  INTEGER(CMISSIntg), PARAMETER :: MaterialsFieldUserNumberDarcy=9
-  INTEGER(CMISSIntg), PARAMETER :: AnalyticFieldUserNumberDarcy=10
-  INTEGER(CMISSIntg), PARAMETER :: EquationsSetUserNumberDarcy=11
-  INTEGER(CMISSIntg), PARAMETER :: ProblemUserNumber=12
-  INTEGER(CMISSIntg), PARAMETER :: GeneratedMeshUserNumber=13
+  INTEGER(CMISSIntg), PARAMETER :: ContextUserNumber=1
+  INTEGER(CMISSIntg), PARAMETER :: CoordinateSystemUserNumber=2
+  INTEGER(CMISSIntg), PARAMETER :: RegionUserNumber=3
+  INTEGER(CMISSIntg), PARAMETER :: MeshUserNumber=4
+  INTEGER(CMISSIntg), PARAMETER :: DecompositionUserNumber=5
+  INTEGER(CMISSIntg), PARAMETER :: DecomposerUserNumber=6
+  INTEGER(CMISSIntg), PARAMETER :: GeometricFieldUserNumber=7
+  INTEGER(CMISSIntg), PARAMETER :: EquationsSetFieldUserNumber=8
+  INTEGER(CMISSIntg), PARAMETER :: DependentFieldUserNumberDarcy=9
+  INTEGER(CMISSIntg), PARAMETER :: MaterialsFieldUserNumberDarcy=10
+  INTEGER(CMISSIntg), PARAMETER :: AnalyticFieldUserNumberDarcy=11
+  INTEGER(CMISSIntg), PARAMETER :: EquationsSetUserNumberDarcy=12
+  INTEGER(CMISSIntg), PARAMETER :: ProblemUserNumber=13
+  INTEGER(CMISSIntg), PARAMETER :: GeneratedMeshUserNumber=14
   INTEGER(CMISSIntg), PARAMETER :: DomainUserNumber=1
   INTEGER(CMISSIntg), PARAMETER :: SolverDarcyUserNumber=1
   INTEGER(CMISSIntg), PARAMETER :: MaterialsFieldUserNumberDarcyPorosity=1
@@ -85,6 +86,7 @@ PROGRAM darcy_static
   REAL(CMISSRP) :: LINESEARCH_ALPHA
   REAL(CMISSRP) :: VALUE
   REAL(CMISSRP) :: POROSITY_PARAM,PERM_OVER_VIS_PARAM
+  LOGICAL :: directoryExists
   LOGICAL :: EXPORT_FIELD_IO
   LOGICAL :: LINEAR_SOLVER_DARCY_DIRECT_FLAG
   LOGICAL :: FIXED_WALL_NODES_FLAG
@@ -126,9 +128,11 @@ PROGRAM darcy_static
   INTEGER(CMISSIntg) :: decompositionIndex,EquationsSetIndex,i,BoundaryNodeDomain,Err
 
   !Intialise OpenCMISS
-  CALL cmfe_Context_Initialise(context,err)
-  CALL cmfe_Initialise(context,err)
+  CALL cmfe_Initialise(err)
   CALL cmfe_ErrorHandlingModeSet(CMFE_ERRORS_TRAP_ERROR,err)
+  !Create a context
+  CALL cmfe_Context_Initialise(context,err)
+  CALL cmfe_Context_Create(ContextUserNumber,context,err)
   CALL cmfe_Region_Initialise(worldRegion,err)
   CALL cmfe_Context_WorldRegionGet(context,worldRegion,err)
  
@@ -504,6 +508,9 @@ PROGRAM darcy_static
   ! SOLVE
   !-----------------------------------------------------------------------------------------------------------
 
+  INQUIRE(file="./results", exist=directoryExists)
+  IF(.NOT.directoryExists) CALL EXECUTE_COMMAND_LINE("mkdir ./output")
+  
   !Solve the problem
   WRITE(*,'(A)') "Solving problem..."
   CALL cmfe_Problem_Solve(Problem,Err)
@@ -527,8 +534,11 @@ PROGRAM darcy_static
      WRITE(*,'(A)') "Field exported!"
   ENDIF
 
-  !Finialise CMISS
-  CALL cmfe_Finalise(context,Err)
+  !Destroy the context
+  CALL cmfe_Context_Destroy(context,err)
+  !Finialise OpenCMISS
+  CALL cmfe_Finalise(err)
+  
   WRITE(*,'(A)') "Program successfully completed."
 
 END PROGRAM darcy_static
