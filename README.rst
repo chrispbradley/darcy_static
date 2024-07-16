@@ -12,9 +12,10 @@ Building the example
 The fortran version of the example can be configured and built with CMake::
 
   git clone https://github.com/OpenCMISS-Examples/darcy_static.git
-  mkdir darcy_static-build
-  cd darcy_static-build
-  cmake -DOpenCMISSLibs_DIR=~/opencmiss/install/  ../darcy_static/
+  cd darcy_static
+  mkdir build
+  cd build
+  cmake -DOpenCMISS_INSTALL_ROOT=/path/to/opencmiss/install/ ../.
   make
 
 
