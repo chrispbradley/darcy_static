@@ -429,7 +429,7 @@ PROGRAM DarcyStaticExample
     DO nodeIdx=1,numberOfFixedWallNodes
       nodeNumber=fixedWallNodes(nodeIdx)
       condition=OC_BOUNDARY_CONDITION_FIXED
-      CALL OC_Decomposition_NodeDomainGet(decomposition,nodeNumber,1,boundaryNodeDomain,err)
+      CALL OC_Decomposition_NodeDomainGet(decomposition,1,nodeNumber,boundaryNodeDomain,err)
       IF(boundaryNodeDomain==computationalNodeNumber) THEN
         DO componentIdx=1,numberOfDimensions
           boundaryConditionValue=0.0_OC_RP
@@ -444,7 +444,7 @@ PROGRAM DarcyStaticExample
     DO nodeIdx=1,numberOfInletWallNodes
       nodeNumber=inletWallNodes(nodeIdx)
       condition=OC_BOUNDARY_CONDITION_FIXED
-      CALL OC_Decomposition_NodeDomainGet(decomposition,nodeNumber,1,boundaryNodeDomain,err)
+      CALL OC_Decomposition_NodeDomainGet(decomposition,1,nodeNumber,boundaryNodeDomain,err)
       IF(boundaryNodeDomain==computationalNodeNumber) THEN
         DO componentIdx=1,numberOfDimensions
           boundaryConditionValue=boundaryConditionValues(componentIdx)

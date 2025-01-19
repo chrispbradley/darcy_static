@@ -255,8 +255,8 @@ firstNodeNumber=1
 nodes = iron.Nodes()
 region.NodesGet(nodes)
 lastNodeNumber = nodes.numberOfNodes
-firstNodeDomain = decomposition.NodeDomainGet(firstNodeNumber,1)
-lastNodeDomain = decomposition.NodeDomainGet(lastNodeNumber,1)
+firstNodeDomain = decomposition.NodeDomainGet(1,firstNodeNumber)
+lastNodeDomain = decomposition.NodeDomainGet(1,lastNodeNumber)
 
 for i in range(1,37):
     boundaryConditions.SetNode(dependentField,iron.FieldVariableTypes.U,1,1,i,3,iron.BoundaryConditionsTypes.FIXED,1.0)
